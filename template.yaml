@@ -1,0 +1,65 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  HopeInNumbersDailyVersesDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: month-day
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: month-day
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+  HopeInNumbersDailyVerseSender:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: HopeInNumbersDailyVerseSender
+      CodeUri: src/Function
+      Handler: handler.handler
+      Runtime: python3.9
+      MemorySize: 512
+      Timeout: 900
+      Tracing: Active
+      Policies: AmazonDynamoDBFullAccess AmazonSSMReadOnlyAccess
+  HopeInNumbersDailyVerseSenderLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${HopeInNumbersDailyVerseSender}
+  HopeInNumbersDailyScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      ScheduleExpression: cron(0 33 13 ? * * *)
+      FlexibleTimeWindow:
+        Mode: FLEXIBLE
+        MaximumWindowInMinutes: 1
+      Target:
+        Arn: !GetAtt HopeInNumbersDailyVerseSender.Arn
+        RoleArn: !GetAtt HopeInNumbersDailySchedulerToHopeInNumbersDailyVerseSenderRole.Arn
+  HopeInNumbersDailySchedulerToHopeInNumbersDailyVerseSenderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub scheduler.${AWS::URLSuffix}
+          Action: sts:AssumeRole
+          Condition:
+            ArnLike:
+              aws:SourceArn: !Sub
+                - arn:${AWS::Partition}:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/*/${AWS::StackName}-${ResourceId}-*
+                - ResourceId: HopeInNumbersDailyScheduler
+      Policies:
+        - PolicyName: StartExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt HopeInNumbersDailyVerseSender.Arn

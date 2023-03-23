@@ -9,7 +9,7 @@ from datetime import date
 logger = logging.getLogger(__name__)
 
 ##LAMBDA CODE###
-def lambda_handler(event, context):
+def handler(event, context):
      #query all the object locations from dynamodb table
      #dynamodb = boto3.client('dynamodb', region_name='us-east-1')
 
@@ -53,6 +53,7 @@ def lambda_handler(event, context):
                          body='[Hope In Numbers]\n{}\n{}'.format(copy, verse),
                          #from_='+19287678011',
                          from_='+16022231114',
+                         send_as_mms=True,
                          #media_url=image_url,
                          to=phone_num
                     )

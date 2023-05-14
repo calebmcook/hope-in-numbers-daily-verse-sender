@@ -22,7 +22,7 @@ def handler(event, context):
      daily_verse = verses_table.query(KeyConditionExpression=Key('month-day').eq(today))
 
      #scan for only subscribers to hope in numbers and pull out their phone numbers
-     subscribers = clients_table.scan(FilterExpression=Attr('current_status').eq('HOPE-SMS'))
+     subscribers = clients_table.scan(FilterExpression=Attr('current_status').eq('HOPE-SMS')|Attr('current_status').eq('ALL'))
      subscriber_numbers = [k['phone_number'] for k in subscribers['Items']]
 
      #pick subject, copy, and verse

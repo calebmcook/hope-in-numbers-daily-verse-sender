@@ -50,7 +50,7 @@ def handler(event, context):
      for phone_num in subscriber_numbers:
           try: 
                message = client.messages.create(
-                         body='[Hope In Numbers]\n{}\n{}\nSTOP-SERVICES to unsubscribe'.format(copy, verse),
+                         body='[Hope In Numbers]\n{}\n{}\n"STOP-SERVICES" to unsubscribe. Try "DAILY-IMAGE" or "HOPE-SMS"'.format(copy, verse),
                          #from_='+19287678011',
                          from_='+16022231114',
                          send_as_mms=True,

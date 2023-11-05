@@ -4,18 +4,19 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: month-day
-          AttributeType: S
+      - AttributeName: month-day
+        AttributeType: S
       BillingMode: PAY_PER_REQUEST
       KeySchema:
-        - AttributeName: month-day
-          KeyType: HASH
+      - AttributeName: month-day
+        KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
   HopeInNumbersDailyVerseSender:
     Type: AWS::Serverless::Function
     Properties:
-      Description: !Sub
+      Description:
+        Fn::Sub:
         - Stack ${AWS::StackName} Function ${ResourceName}
         - ResourceName: HopeInNumbersDailyVerseSender
       CodeUri: src/Function
@@ -25,10 +26,17 @@ Resources:
       Timeout: 900
       Tracing: Active
       Policies:
-        - AmazonDynamoDBFullAccess
-        - AmazonSSMReadOnlyAccess
+      - AmazonDynamoDBFullAccess
+      - AmazonSSMReadOnlyAccess
+      - Statement:
+            - Effect: Allow
+              Action: kms:Decrypt
+              Resource: arn:aws:kms:us-east-1:054619787751:key/09ab41da-2847-4fc9-9795-58b2f73b66b5
+    Metadata:
+      SamResourceId: HopeInNumbersDailyVerseSender
   HopeInNumbersDailyVerseSenderLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
-      LogGroupName: !Sub /aws/lambda/${HopeInNumbersDailyVerseSender}
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${HopeInNumbersDailyVerseSender}

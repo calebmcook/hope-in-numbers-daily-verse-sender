@@ -34,12 +34,12 @@ def handler(event, context):
      #get twilio auth token from AWS systems manager parameter store
      ssm = boto3.client('ssm')
      account_sid = ssm.get_parameter(
-          Name='/twilio/garretson_technology_isi_subaccount/twilio_account_sid',
+          Name='/twilio/isiaccount/twilio_account_sid',
           WithDecryption=True
      )['Parameter']['Value']
 
      auth_token = ssm.get_parameter(
-          Name='/twilio/garretson_technology_isi_subaccount/twilio_auth_token',
+          Name='/twilio/isiaccount/twilio_auth_token',
           WithDecryption=True
      )['Parameter']['Value']
 
@@ -50,21 +50,19 @@ def handler(event, context):
      for phone_num in subscriber_numbers:
           try: 
                message = client.messages.create(
-                         body='[Hope In Numbers]\n{}\n{}\n"STOP-SERVICES" to unsubscribe. Try "DAILY-IMAGE" or "HOPE-SMS"'.format(copy, verse),
-                         #from_='+19287678011',
-                         from_='+16022231114',
-                         send_as_mms=True,
-                         #media_url=image_url,
-                         to=phone_num
-                    )
+                        messaging_service_sid='MGe8378c0c9e461b6c628995ba22ed4444',
+                        body='[Hope In Numbers]\n{}\n{}\n"STOP-SERVICES" to unsubscribe. Try "DAILY-IMAGE" or "HOPE-SMS"'.format(copy, verse),
+                        send_as_mms=True,
+                        to=phone_num
+               )
                logger.warning(message)
+               pass
 
           except Exception as err:
                logger.warning("Couldn't send message to number %s.",
                         phone_num)
-               #logger.warning(message)
                continue
 
      return {
-          'statusCode': 200,
+          'statusCode': 200
      }
